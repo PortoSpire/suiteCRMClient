@@ -1,0 +1,33 @@
+{
+    "name": "portospire/apps_suitecrmclient",
+    "description": "SuiteCRM client library by PortoSpire",
+    "license": "proprietary",
+    "keywords": [
+        "portospire",
+        "suitecrm",
+        "api v8"
+    ],
+    "homepage": "http://www.portospire.com/",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.0",
+        "psr/log-implementation": "1.0.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "SuiteCRM\\": "SuiteCRM/src/"
+        }
+    },
+
+    "scripts": {
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "suggest": {
+        "zendframework/zend-log": "A psr log-implementation provider"
+    }
+}
+
