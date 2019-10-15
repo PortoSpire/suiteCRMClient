@@ -20,7 +20,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PortoSpireSuiteCRMClient\\": "PortoSpireSuiteCRMClient/src/"
+            "PortoSpire\\SuiteCRMClient\\": "src/"
         }
     },
 
@@ -33,4 +33,3 @@
         "zendframework/zend-log": "A psr log-implementation provider"
     }
 }
-
