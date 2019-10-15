@@ -1,15 +1,16 @@
 <?php
 
-namespace SuiteCRM;
+namespace PortoSpireSuiteCRMClient;
 
 /**
- * The configuration provider for the App module
+ * The configuration provider for the PortoSpireSuiteCRMClient module
  *
- * @see https://docs.zendframework.com/zend-component-installer/
  */
 class ConfigProvider
 {
 
+    const VERSION = "0.0.1";
+    
     /**
      * Returns the configuration array
      *
@@ -32,7 +33,7 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                \App\Servics\SuiteCrm::class => \App\Service\SuiteCrmFactory::class,
+                \PortoSpireSuiteCRMClient\Servics\SuiteCrm::class => \PortoSpireSuiteCRMClient\Service\SuiteCrmFactory::class,
             ],
         ];
     }
