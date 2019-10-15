@@ -40,7 +40,7 @@
  * @link      https://portospire.com 
  */
 
-namespace SuiteCRM\Service;
+namespace PortoSpireSuiteCRMClient\Service;
 
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\RequestException;
@@ -82,6 +82,13 @@ class SuiteCrm
         }
     }
 
+    private function initConnection()
+    {
+        $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain . '/Api/',
+            'headers' => ['Content-type: application/vnd.api+json',
+                'Accept: application/vnd.api+json']]);
+    }
+
     public function submitWebToLead(array $values, string $campaignID,
         string $uri = '/index.php?entryPoint=WebToPersonCapture',
         string $lead_source = 'Other',
@@ -112,13 +119,21 @@ class SuiteCrm
             'lead_source' => $lead_source,
         ];
         if (!isset($this->access_token)) {
-            $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain . '/Api/',
-                'headers' => ['Content-type: application/vnd.api+json',
-                    'Accept: application/vnd.api+json']]);
+            $this->initConnection();
         }
         try {
             $request = $this->guzzle->post($uri, ['form_params' => $vars]);
-            if($request->getStatusCode() == 200){
+            $promise = $client->requestAsync('POST', $uri);
+            $promise->then(
+                function (ResponseInterface $res) {
+                echo $res->getStatusCode() . "\n";
+            },
+                function (RequestException $e) {
+                echo $e->getMessage() . "\n";
+                echo $e->getRequest()->getMethod();
+            }
+            );
+            if ($request->getStatusCode() == 200) {
                 return true;
             } else {
                 $this->logger->error('SuiteCRM: unable to submit WebToForm');
@@ -198,16 +213,26 @@ class SuiteCrm
             $string = substr($string, 0, $length);
         }
     }
+    
+    public function callV8Api()
+    {
+        
+    }
+    
+    public function callRestApi()
+    {
+        
+    }
 
     private function getAccessToken(): string
     {
         if (isset($this->access_token) && isset($this->token_expires) && time() < $this->token_expires) {
             return $this->access_token;
         }
+        if (!$this->guzzle instanceof Client) {
+            $this->initConnection();
+        }
         try {
-            $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain . '/Api/',
-                'headers' => ['Content-type: application/vnd.api+json',
-                    'Accept: application/vnd.api+json']]);
             $response = $this->guzzle->post($this::_access_url, ['json' => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->client_id,
@@ -219,10 +244,7 @@ class SuiteCrm
                     $this->access_token = $out['access_token'];
                     $this->token_expires = (time() + $out['expires_in']);
                     return $this->access_token;
-                } else {
-                    $this->logger->error('SuiteCRM: unable to get access token. ' . $response->getBody());
                 }
-            } else {
                 $this->logger->error('SuiteCRM: unable to get access token. ' . $response->getBody());
             }
         } catch (RequestException $e) {
