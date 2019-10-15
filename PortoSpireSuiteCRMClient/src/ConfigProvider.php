@@ -9,7 +9,7 @@ namespace PortoSpireSuiteCRMClient;
 class ConfigProvider
 {
 
-    const VERSION = "0.0.2";
+    const VERSION = "0.0.3";
     
     /**
      * Returns the configuration array
