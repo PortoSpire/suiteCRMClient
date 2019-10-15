@@ -1,5 +1,5 @@
 {
-    "name": "portospire/apps_suitecrmclient",
+    "name": "portospire/suitecrmclient",
     "description": "A free client library for use with SuiteCRM to abstract the various API usage to enable easier integrations provided by PortoSpire",
     "license": "GNU LGPLv3",
     "keywords": [
