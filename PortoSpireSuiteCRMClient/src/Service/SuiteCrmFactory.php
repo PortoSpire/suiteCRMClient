@@ -40,10 +40,10 @@
  * @link      https://portospire.com 
  */
 
-namespace SuiteCRM\Service;
+namespace PortoSpireSuiteCRMClient\Service;
 
 use Psr\Container\ContainerInterface;
-use SuiteCRM\Service\SuiteCrm;
+use PortoSpireSuiteCRMClient\Service\SuiteCrm;
 
 /**
  * Description of SuiteCrmFactory

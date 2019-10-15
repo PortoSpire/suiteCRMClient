@@ -1,13 +1,16 @@
 {
     "name": "portospire/apps_suitecrmclient",
-    "description": "SuiteCRM client library by PortoSpire",
-    "license": "proprietary",
+    "description": "A free client library for use with SuiteCRM to abstract the various API usage to enable easier integrations provided by PortoSpire",
+    "license": "GNU LGPLv3",
     "keywords": [
         "portospire",
-        "suitecrm",
-        "api v8"
+        "SuiteCRM",
+        "SuiteCRM api v8",
+        "SuiteCRM rest api",
+        "SuiteCRM person form",
+        "SuiteCRM web to lead form"
     ],
-    "homepage": "http://www.portospire.com/",
+    "homepage": "https://www.portospire.com/",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
@@ -17,7 +20,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SuiteCRM\\": "SuiteCRM/src/"
+            "PortoSpireSuiteCRMClient\\": "SuiteCRM/src/"
         }
     },
 
