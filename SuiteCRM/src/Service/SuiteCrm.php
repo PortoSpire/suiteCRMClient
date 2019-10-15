@@ -62,8 +62,8 @@ use \Psr\Log\LoggerInterface;
 class SuiteCrm
 {
 
-    const _access_url = '/Api/access_token',
-        _module_url = '';
+    const _access_url = 'access_token',
+        _module_url = 'V8/module';
 
     private $logger, $server_domain, $client_id, $client_secret, $access_token, $token_expires,
         $guzzle;
@@ -82,35 +82,55 @@ class SuiteCrm
         }
     }
 
-    public function submitWebToLead(array $values, string $campaignID, 
+    public function submitWebToLead(array $values, string $campaignID,
+        string $uri = '/index.php?entryPoint=WebToPersonCapture',
         string $lead_source = 'Other',
         string $lead_source_description = 'PortoSpire: WebToLead',
         string $module_dir = 'Leads',
         string $assigned_user_id = '1',
         array $opt_fields = []): bool
     {
-        $optional_fields = !empty($opt_fields)? $opt_fields: ['first_name','work_phone','email1'];
+        $optional_fields = !empty($opt_fields) ? $opt_fields : ['first_name', 'work_phone', 'email1'];
         $required_fields = ['last_name'];
-        foreach($optional_fields as $field){
-            $values[$field] = isset($values[$field])?$values[$field]:'';
+        foreach ($optional_fields as $field) {
+            $values[$field] = isset($values[$field]) ? $values[$field] : '';
         }
-        foreach($required_fields as $field){
-            if(!isset($values[$field])){
-                throw \Exception('SuiteCRM: "'.$field.'" is a required field for WebToLead submissions');
+        foreach ($required_fields as $field) {
+            if (!isset($values[$field])) {
+                throw \Exception('SuiteCRM: "' . $field . '" is a required field for WebToLead submissions');
             }
         }
-        $uri = '/index.php?entryPoint=WebToPersonCapture';
-        $vars = ['campaign_id'=>$campaignID, 
-            'first_name'=>$values['first_name'],
-            'last_name'=>$values['last_name'],
-            'work_phone'=>$values['work_phone'],
-            'email1'=>$values['email1'],
-            'lead_source_description'=>$lead_source_description,
-            'moduleDir'=>$module_dir,
-            'assigned_user_id'=>$assigned_user_id,
-            'submit'=>'Submit',
+        $vars = ['campaign_id' => $campaignID,
+            'first_name' => $values['first_name'],
+            'last_name' => $values['last_name'],
+            'work_phone' => $values['work_phone'],
+            'email1' => $values['email1'],
+            'lead_source_description' => $lead_source_description,
+            'moduleDir' => $module_dir,
+            'assigned_user_id' => $assigned_user_id,
+            'submit' => 'Submit',
             'lead_source' => $lead_source,
-            ];
+        ];
+        if (!isset($this->access_token)) {
+            $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain . '/Api/',
+                'headers' => ['Content-type: application/vnd.api+json',
+                    'Accept: application/vnd.api+json']]);
+        }
+        try {
+            $request = $this->guzzle->post($uri, ['form_params' => $vars]);
+            if($request->getStatusCode() == 200){
+                return true;
+            } else {
+                $this->logger->error('SuiteCRM: unable to submit WebToForm');
+                return false;
+            }
+        } catch (RequestException $e) {
+            $this->logger->notice(Psr7\str($e->getRequest()));
+            if ($e->hasResponse()) {
+                $this->logger->error(Psr7\str($e->getResponse()));
+            }
+        }
+        return false;
     }
 
     /**
@@ -185,7 +205,7 @@ class SuiteCrm
             return $this->access_token;
         }
         try {
-            $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain,
+            $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain . '/Api/',
                 'headers' => ['Content-type: application/vnd.api+json',
                     'Accept: application/vnd.api+json']]);
             $response = $this->guzzle->post($this::_access_url, ['json' => [
