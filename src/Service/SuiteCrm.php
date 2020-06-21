@@ -6,36 +6,29 @@
  * PHP version 7
  * 
  * * * License * * * 
- * PORTOSPIRE ("COMPANY") CONFIDENTIAL
- * Unpublished Copyright (c) 2016-2020 PORTOSPIRE, All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of 
- * COMPANY. The intellectual and technical concepts contained herein are
- * proprietary to COMPANY and may be covered by U.S. and Foreign Patents, 
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material is 
- * strictly forbidden unless prior written permission is obtained from COMPANY.
- * Access to the source code contained herein is hereby forbidden to anyone 
- * except current COMPANY employees, managers or contractors who have executed 
- * Confidentiality and Non-disclosure agreements explicitly covering such access.
- * 
- * The copyright notice above does not evidence any actual or intended publication
- * or disclosure of this source code, which includes information that is 
- * confidential and/or proprietary, and is a trade secret, of COMPANY. 
- * ANY REPRODUCTION, MODIFICATION, DISTRIBUTION, PUBLIC  PERFORMANCE, OR
- * PUBLIC DISPLAY OF OR THROUGH USE OF THIS SOURCE CODE WITHOUT THE EXPRESS WRITTEN
- * CONSENT OF COMPANY IS STRICTLY PROHIBITED, AND IN VIOLATION OF APPLICABLE 
- * LAWS AND INTERNATIONAL TREATIES. THE RECEIPT OR POSSESSION OF THIS SOURCE CODE
- * AND/OR RELATED INFORMATION DOES NOT CONVEY OR IMPLY ANY RIGHTS TO REPRODUCE,
- * DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SELL ANYTHING 
- * THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
+ * Copyright (C) 2019 PortoSpire, LLC.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  * * * End License * * * 
  * 
  * @category  CategoryName
  * @package   PackageName
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2019 PORTOSPIRE
- * @license   https://portospire.com/policies Proprietary, Confidential
+ * @license   LGPL 3
  * @version   GIT: $ID$
  * @link      https://portospire.com 
  */
@@ -43,9 +36,16 @@
 namespace PortoSpire\SuiteCRMClient\Service;
 
 use \GuzzleHttp\Client;
-use \GuzzleHttp\Exception\RequestException;
+use \GuzzleHttp\Exception\RequestException,
+    \GuzzleHttp\Exception\BadResponseException;
 use \GuzzleHttp\Psr7;
+use \GuzzleHttp\Psr7\Request;
 use \Psr\Log\LoggerInterface;
+use \PortoSpire\SuiteCRMClient\Model\Filter,
+    \PortoSpire\SuiteCRMClient\Model\WebToPerson,
+    \PortoSpire\SuiteCRMClient\Model\WebToLead,
+    \PortoSpire\SuiteCRMClient\Model\WebToContact,
+    \PortoSpire\SuiteCRMClient\Model\Generic;
 
 /**
  * Description of SuiteCrm
@@ -54,7 +54,7 @@ use \Psr\Log\LoggerInterface;
  * @package   PackageName
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2019 PORTOSPIRE
- * @license   https://portospire.com/policies Proprietary
+ * @license   LGPL 3
  * @version   Release: @package_version@
  * @link      https://coderepo.portospire.com/#git_repo_name
  * @since     Class available since Release 0.0.0
@@ -63,10 +63,13 @@ class SuiteCrm
 {
 
     const _access_url = 'access_token',
-        _module_url = 'V8/module';
+        _module_url = 'V8/module',
+        _rest_url = '/service/v4_1/rest.php',
+        _web_to_person_uri = '/index.php?entryPoint=WebToPersonCapture',
+        _v8_modes = ['GET' => 'get', 'POST' => 'post', 'PUT' => 'put', 'PATCH' => 'patch', 'DELETE' => 'delete'];
 
     private $logger, $server_domain, $client_id, $client_secret, $access_token, $token_expires,
-        $guzzle;
+        $guzzle, $user, $password, $sid;
 
     public function __construct(LoggerInterface $logger, array $config = [])
     {
@@ -80,59 +83,72 @@ class SuiteCrm
         if (isset($config['server_domain'])) {
             $this->server_domain = $config['server_domain'];
         }
+        if (isset($config['user'])) {
+            $this->user = $config['user'];
+        }
+        if (isset($config['password'])) {
+            $this->password = $config['password'];
+        }
+        $this->guzzle = new Client(['headers' => ['Content-type: application/vnd.api+json',
+                'Accept: */*']]);
     }
 
-    private function initConnection()
+    /*
+     * applies to v8 bearer tokens
+     */
+
+    public function getCurrentAccessToken()
     {
-        $this->guzzle = new Client(['base_uri' => 'https://' . $this->server_domain . '/Api/',
-            'headers' => ['Content-type: application/vnd.api+json',
-                'Accept: application/vnd.api+json']]);
+        return ['token' => $this->access_token, 'expires' => $this->token_expires];
     }
 
-    public function submitWebToLead(array $values, string $campaignID,
-        string $uri = '/index.php?entryPoint=WebToPersonCapture',
-        string $lead_source = 'Other',
-        string $lead_source_description = 'PortoSpire: WebToLead',
-        string $module_dir = 'Leads',
-        string $assigned_user_id = '1',
-        array $opt_fields = []): bool
+    /*
+     * only used for v4_rest calls, initiates active session
+     */
+
+    public function login(): string
     {
-        $optional_fields = !empty($opt_fields) ? $opt_fields : ['first_name', 'work_phone', 'email1'];
-        $required_fields = ['last_name'];
-        foreach ($optional_fields as $field) {
-            $values[$field] = isset($values[$field]) ? $values[$field] : '';
+        $login_params = array(
+            'user_name' => $this->rest_user,
+            'password' => $this->rest_pass,
+        );
+        $result = $this->rest_request('login', [
+            'user_auth' => ['user_name' => $this->user,
+                'password' => $this->password],
+            'application_name' => '',
+            'name_value_list' => [['name' => 'notifyonsave', 'value' => 'true']]
+        ]);
+        if (isset($result['id'])) {
+            $this->sid = $result['id'];
+            return $result['id'];
         }
-        foreach ($required_fields as $field) {
-            if (!isset($values[$field])) {
-                throw \Exception('SuiteCRM: "' . $field . '" is a required field for WebToLead submissions');
-            }
-        }
-        $vars = ['campaign_id' => $campaignID,
-            'first_name' => $values['first_name'],
-            'last_name' => $values['last_name'],
-            'work_phone' => $values['work_phone'],
-            'email1' => $values['email1'],
-            'lead_source_description' => $lead_source_description,
-            'moduleDir' => $module_dir,
-            'assigned_user_id' => $assigned_user_id,
-            'submit' => 'Submit',
-            'lead_source' => $lead_source,
-        ];
-        if (!isset($this->access_token)) {
-            $this->initConnection();
-        }
+        return false;
+    }
+
+    /*
+     * only used for v4_rest calls, clears active session
+     */
+
+    public function logout()
+    {
+        $this->callRestApi('logout', ['session' => $this->sid]);
+        $this->sid = null;
+    }
+
+    public function submitWebToPerson(WebToPerson $person,
+        string $assignedUserId,
+        string $campaignID)
+    {
+        $vars = $person->extractNonEmpty();
+        $vars['moduleDir'] = $person::MODULE_DIR;
+        $vars['campaign_id'] = $campaignID;
+        $vars['assigned_user_id'] = $assignedUserId;
+        $person->checkRequiredFields();
+        $person->checkFieldOptions();
         try {
-            $request = $this->guzzle->post($uri, ['form_params' => $vars]);
-            $promise = $client->requestAsync('POST', $uri);
-            $promise->then(
-                function (ResponseInterface $res) {
-                echo $res->getStatusCode() . "\n";
-            },
-                function (RequestException $e) {
-                echo $e->getMessage() . "\n";
-                echo $e->getRequest()->getMethod();
-            }
-            );
+            $this->logger->debug($vars);
+            $request = $this->guzzle->post('https://' . $this->server_domain . $this::_web_to_person_uri,
+                ['form_params' => $vars,]);
             if ($request->getStatusCode() == 200) {
                 return true;
             } else {
@@ -148,8 +164,29 @@ class SuiteCrm
         return false;
     }
 
+    public function submitWebToContact(array $values, string $campaignID,
+        string $lead_source = 'Other',
+        string $assigned_user_id = '1'): bool
+    {
+        $webToContact = new WebToContact();
+        $webToContact->exchangeArray($values);
+        return $this->submitWebToPerson($webToContact, $assigned_user_id, $campaignID);
+    }
+
+    public function submitWebToLead(array $values, string $campaignID,
+        string $lead_source = 'Other',
+        string $lead_source_description = 'PortoSpire: WebToLead',
+        string $assigned_user_id = '1'): bool
+    {
+        $webToLead = new WebToLead();
+        $webToLead->exchangeArray($values);
+        $webToLead->lead_source = $lead_source;
+        $webToLead->lead_source_description = $lead_source_description;
+        return $this->submitWebToPerson($webToLead, $assigned_user_id, $campaignID);
+    }
+
     /**
-     * determines if a passed string matches the criteria for a Sugar GUID.
+     * determines if a passed string matches the criteria for a SuitCRM GUID.
      *
      * @param string $guid
      *
@@ -213,15 +250,213 @@ class SuiteCrm
             $string = substr($string, 0, $length);
         }
     }
-    
-    public function callV8Api()
+
+    public function createRelationship(string $module, string $id, string $relationship_type)
     {
-        
+        // TODO: implement
+        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+    }
+
+    public function getRelationship(string $module, string $id, string $relationship_id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = [])
+    {
+        // TODO: implement
+    }
+
+    public function deleteRelationship()
+    {
+        // TODO: implement
+        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+    }
+
+    public function update(string $type, string $id, array $attributes)
+    {
+        // TODO: implement
+        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+    }
+
+    public function create(string $type, array $attributes, string $id = null)
+    {
+        // generate id if null (should we check if the passed id already exists?)
+        // TODO: implement
+    }
+
+    public function delete(string $module, string $id)
+    {
+        // TODO: implement
+    }
+
+    public function get(string $module, array $fields = [])
+    {
+        // TODO: implement
+    }
+
+    private function checkMode($mode)
+    {
+
+        if ($key = array_search($mode, $this::_v8_modes)) {
+            return $key;
+        }
+        if (array_key_exists($mode, $this::_v8_modes)) {
+            return $mode;
+        }
+        return 'GET'; // default to GET
     }
     
-    public function callRestApi()
+    public function convertJsonToGenerics(array $decoded_json)
     {
-        
+        $res = [];
+        foreach($decoded_json['data'] as $obj){
+            $newObj = new Generic();
+            $res[] = $newObj->exchangeArray($obj);
+        }
+        return $res;
+    }
+
+    public function callV8Api(string $uri, string $http_mode, string $body = null)
+    {
+        $mode = $this->checkMode($http_mode);
+        if (!isset($this->token_expires) || time >= $this->token_expires) {
+            $access_token = $this->getAccessToken();
+        }
+        try {
+            $this->logger->debug('Requesting v8 api uri: ' . $uri);
+            $request = new Request($mode, "https://{$this->server_domain}/Api/{$uri}",
+                [
+                    "Authorization" => "Bearer {$access_token}",
+                    "Content-Type" => "application/vnd.api+json",
+                    "Cache-Control" => "no-cache",
+                ]
+            );
+
+            if (!is_null($body)) {
+                $request->setBody($body);
+            }
+            $response = $this->guzzle->send($request);
+            if ($response->getStatusCode() == 200) {
+                return json_decode($response->getBody(), true);
+            } else {
+                $this->logger->error('SuiteCRM: unable to make call to destination service');
+                return false;
+            }
+        } catch (RequestException $e) {
+            $this->logger->notice(Psr7\str($e->getRequest()));
+            if ($e->hasResponse()) {
+                $this->logger->error(Psr7\str($e->getResponse()));
+            }
+        }
+    }
+
+    public function getCampaigns(array $fields = [], array $page = ['size' => 20, 'number' => 1], string $sort = 'name', $filter = null)
+    {
+        if ($filter instanceof Filter) {
+            return $this->getList('Campaigns', $fields, $page, $sort, $filter->toString());
+        }
+        return $this->getList('Campaigns', $fields, $page, $sort);
+    }
+
+    public function getAccounts(array $fields = [], string $account_type = 'Customer', array $page = ['size' => 20, 'number' => 1],
+        string $sort = 'name', $filter = null)
+    {
+        $filterAccountType = new \PortoSpire\SuiteCRMClient\Model\Filter(['account_type' => $account_type]);
+        if (is_array($filter)) {
+            $filter[] = $filterAccountType->toString();
+        } elseif ($filter instanceof Filter) {
+            $filter = [$filter->toString(), $filterAccountType->toString()];
+        } elseif (!is_null($filter)) {
+            $filter .= '&' . $filterAccountType->toString();
+        }
+        return $this->getList('Accounts', $fields, $page, $sort, $filter->toString());
+    }
+
+    public function getList(string $module, array $fields = [], array $page = ['size' => 20, 'number' => 1], string $sort = null,
+        $filter = [])
+    {
+        $uri = $this->buildUri($module, $fields, $page, $sort, $filter);
+        return $this->callV8Api($uri, 'GET');
+    }
+
+    private function buildFilterUri($filter, $separator)
+    {
+        $string = '';
+        if ($filter instanceof Filter) {
+            $string .= $separator . $filter->toString();
+        } elseif (is_array($filter)) {
+            foreach ($filter as $filt) {
+                if ($filt instanceof Filter) {
+                    $string .= $separator . $filt->toString();
+                } else {
+                    $string .= $separator . $filt->toString();
+                }
+                $separator = '&';
+            }
+        } else {
+            $string .= $separator . $filter;
+        }
+        return $string;
+    }
+
+    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [])
+    {
+        $string = $this::_module_url . '/' . $entrypoint . '?';
+        $separator = '';
+
+        // process fields
+        foreach ($fields as $key => $val) {
+            $string .= $separator . 'fields[' . $key . ']=';
+            if (is_array($val)) { //handles cases like ['Accounts'=>['name','account_type']]
+                $string .= implode(',', $val);
+            } else { //handles cases like ['Accounts'=>'name,account_type']
+                $string .= $val;
+            }
+            $separator = '&';
+        }
+
+        //process page
+        if (isset($page['number'])) {
+            $string .= $separator . 'page[number]=' . $page['number'];
+            $separator = '&';
+        }
+        if (isset($page['size'])) {
+            $string .= $separator . '&page[size]=' . $page['size'];
+        }
+
+        //add sort
+        if (!is_null($sort)) {
+            $string .= $separator . 'sort=' . $sort;
+            $separator = '&';
+        }
+
+        // process filters
+        if (is_array($filter)) {
+            foreach ($filter as $filt) {
+                $string .= $this->buildFilterUri($filt, $separator);
+                $separator = '&';
+            }
+        } else {
+            $string .= $this->buildFilterUri($filter, $separator);
+            $separator = '&';
+        }
+        return $string;
+    }
+
+    public function callRestApi(string $callname, array $arguments)
+    {
+        try {
+            $response = $this->guzzle->post('https://' . $this->server_domain . '/' . $this::_rest_url, ['method' => $callname,
+                'input_type' => 'JSON', 'response_type' => 'JSON',
+                'rest_data' => json_encode($arguments)]);
+            if ($response->getStatusCode() === 200) {
+                return json_decode($response->getBody(), true);
+            }
+        } catch (RequestException $e) {
+            $this->logger->error(Psr7\str($e->getRequest()));
+            if ($e->hasResponse()) {
+                $this->logger->error(Psr7\str($e->getResponse()));
+            }
+        } catch (Exception $e) {
+            $this->logger->error('SuiteCRM: failed calling rest api. ' . $e->getMessage());
+        }
+        return false;
     }
 
     private function getAccessToken(): string
@@ -229,15 +464,16 @@ class SuiteCrm
         if (isset($this->access_token) && isset($this->token_expires) && time() < $this->token_expires) {
             return $this->access_token;
         }
-        if (!$this->guzzle instanceof Client) {
-            $this->initConnection();
-        }
         try {
-            $response = $this->guzzle->post($this::_access_url, ['json' => [
-                    'grant_type' => 'client_credentials',
-                    'client_id' => $this->client_id,
-                    'client_secret' => $this->client_secret
-            ]]);
+            $response = $this->guzzle->request('POST', 'https://' . $this->server_domain . '/Api/' . $this::_access_url, ['multipart' =>
+                [
+                    ['name' => 'grant_type', 'contents' => 'client_credentials'],
+                    ['name' => 'client_id', 'contents' => $this->client_id],
+                    ['name' => 'client_secret', 'contents' => $this->client_secret,
+                        'headers' => ['Content-type: application/vnd.api+json',
+                            'Accept: application/vnd.api+json']]
+                ],
+            ]);
             if ($response->getStatusCode() === 200) {
                 $out = json_decode($response->getBody(), true);
                 if (isset($out['access_token'])) {
@@ -251,10 +487,18 @@ class SuiteCrm
             $this->logger->error(Psr7\str($e->getRequest()));
             if ($e->hasResponse()) {
                 $this->logger->error(Psr7\str($e->getResponse()));
+            } else {
+                $this->logger->error($e->getMessage());
+            }
+        } catch (BadResponseException $e) {
+            $this->logger->error(Psr7\str($e->getRequest()));
+            if ($e->hasResponse()) {
+                $this->logger->error(Psr7\str($e->getResponse()));
             }
         } catch (\Exception $e) {
             $this->logger->error('SuiteCRM: unable to get access token. ' . $e->getMessage());
         }
+
         throw new \Exception('SuiteCRM: unable to fetch access token. Check the logs for details.');
     }
 
@@ -266,6 +510,21 @@ class SuiteCrm
     public function setClientSecret(string $client_secret)
     {
         $this->client_secret = $client_secret;
+    }
+
+    public function setUser(string $user)
+    {
+        $this->user = $user;
+    }
+
+    public function setPassword(string $password)
+    {
+        $this->password = $password;
+    }
+
+    public function setServerDomain(string $domain)
+    {
+        $this->server_domain = $domain;
     }
 
 }
