@@ -6,7 +6,7 @@
  * PHP version 7
  * 
  * * * License * * * 
- * Copyright (C) 2019 PortoSpire, LLC.
+ * Copyright (C) 2022 PortoSpire, LLC.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,13 +24,13 @@
  * MA 02110-1301  USA
  * * * End License * * * 
  * 
- * @category  CategoryName
- * @package   PackageName
+ * @category  Factory
+ * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2019 PORTOSPIRE
+ * @copyright 2022 PORTOSPIRE
  * @license   LGPL 3
- * @version   GIT: $ID$
- * @link      https://portospire.com 
+ * @version   Release: 0.0.6
+ * @link      https://portospire.github.io/
  */
 
 namespace PortoSpire\SuiteCRMClient\Service;
@@ -42,13 +42,13 @@ use PortoSpire\SuiteCRMClient\Service\SuiteCrm,
 /**
  * Description of SuiteCrmFactory
  *
- * @category  CategoryName
- * @package   PackageName
+ * @category  Factory
+ * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2019 PORTOSPIRE
+ * @copyright 2022 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: @package_version@
- * @link      https://coderepo.portospire.com/#git_repo_name
+ * @version   Release: 0.0.6
+ * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.0
  */
 class SuiteCrmFactory

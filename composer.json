@@ -1,7 +1,7 @@
 {
     "name": "portospire/suitecrmclient",
-    "description": "A free client library for use with SuiteCRM to abstract the various API usage to enable easier integrations provided by PortoSpire",
-    "license": "GNU LGPLv3",
+    "description": "A free client library for use with SuiteCRM to abstract the various API usage to enable easier integrations. Provided by PortoSpire",
+    "license": "LGPL-3.0-or-later",
     "keywords": [
         "portospire",
         "SuiteCRM",
@@ -10,7 +10,7 @@
         "SuiteCRM person form",
         "SuiteCRM web to lead form"
     ],
-    "homepage": "https://www.portospire.com/",
+    "homepage": "https://portospire.github.io/",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
