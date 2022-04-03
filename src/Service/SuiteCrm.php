@@ -6,7 +6,7 @@
  * PHP version 7
  * 
  * * * License * * * 
- * Copyright (C) 2019 PortoSpire, LLC.
+ * Copyright (C) 2022 PortoSpire, LLC.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,13 +24,13 @@
  * MA 02110-1301  USA
  * * * End License * * * 
  * 
- * @category  CategoryName
- * @package   PackageName
+ * @category  Service
+ * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2019 PORTOSPIRE
+ * @copyright 2022 PORTOSPIRE
  * @license   LGPL 3
- * @version   GIT: $ID$
- * @link      https://portospire.com 
+ * @version   Release: 0.0.6
+ * @link      https://portospire.github.io/
  */
 
 namespace PortoSpire\SuiteCRMClient\Service;
@@ -50,13 +50,13 @@ use \PortoSpire\SuiteCRMClient\Model\Filter,
 /**
  * Description of SuiteCrm
  *
- * @category  CategoryName
- * @package   PackageName
+ * @category  Service
+ * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2019 PORTOSPIRE
+ * @copyright 2022 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: @package_version@
- * @link      https://coderepo.portospire.com/#git_repo_name
+ * @version   Release: 0.0.6
+ * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.0
  */
 class SuiteCrm
@@ -260,6 +260,7 @@ class SuiteCrm
     public function getRelationship(string $module, string $id, string $relationship_id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = [])
     {
         // TODO: implement
+        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
     public function deleteRelationship()
@@ -278,16 +279,19 @@ class SuiteCrm
     {
         // generate id if null (should we check if the passed id already exists?)
         // TODO: implement
+        throw new \Exception('This function has not been implemented yet.');
     }
 
     public function delete(string $module, string $id)
     {
         // TODO: implement
+        throw new \Exception('This function has not been implemented yet.');
     }
 
     public function get(string $module, array $fields = [])
     {
         // TODO: implement
+        throw new \Exception('This function has not been implemented yet.');
     }
 
     private function checkMode($mode)
@@ -498,7 +502,7 @@ class SuiteCrm
         } catch (\Exception $e) {
             $this->logger->error('SuiteCRM: unable to get access token. ' . $e->getMessage());
         }
-
+        
         throw new \Exception('SuiteCRM: unable to fetch access token. Check the logs for details.');
     }
 
