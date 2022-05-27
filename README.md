@@ -1,4 +1,5 @@
 <img src="https://assets.portospire.com/github.io/suitecrmclient.png" />
+
 <img src="https://img.shields.io/github/v/release/PortoSpire/suiteCRMClient" /> <img src="https://img.shields.io/github/languages/code-size/PortoSpire/suiteCRMClient" /> <img src="https://img.shields.io/github/license/PortoSpire/suiteCRMClient" />
 # Client library for use with SuiteCRM
 A free (LGPL3) client library for use with SuiteCRM to abstract various API usage to enable easier integrations.
