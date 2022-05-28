@@ -10,7 +10,7 @@
         "SuiteCRM person form",
         "SuiteCRM web to lead form"
     ],
-    "homepage": "https://portospire.github.io/",
+    "homepage": "https://portospire.github.io/suiteCRMClient/",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
