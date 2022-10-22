@@ -319,9 +319,7 @@ class SuiteCrm
     public function callV8Api(string $uri, string $http_mode, string $body = null)
     {
         $mode = $this->checkMode($http_mode);
-        if (!isset($this->token_expires) || time >= $this->token_expires) {
-            $access_token = $this->getAccessToken();
-        }
+        $access_token = $this->getAccessToken();
         try {
             $this->logger->debug('Requesting v8 api uri: ' . $uri);
             $request = new Request($mode, "https://{$this->server_domain}/Api/{$uri}",
@@ -356,6 +354,14 @@ class SuiteCrm
             return $this->getList('Campaigns', $fields, $page, $sort, $filter->toString());
         }
         return $this->getList('Campaigns', $fields, $page, $sort);
+    }
+    
+    public function getContacts(array $fields= [], array $page=['size'=>20,'number'=>1], string $sort = 'name', $filter = null)
+    {
+        if ($filter instanceof Filter){
+            return $this->getList('Contacts',$fields, $page, $sort,$filter->toString());
+        }
+        return $this->getList('Contacts', $fields,$page,$sort);
     }
 
     public function getAccounts(array $fields = [], string $account_type = 'Customer', array $page = ['size' => 20, 'number' => 1],
