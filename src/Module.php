@@ -50,7 +50,7 @@ namespace Portospire\SuiteCRMClient;
 class Module
 {
 
-    const VERSION = "0.1.1";
+    const VERSION = "0.1.2";
  public function getConfig()
     {
         return include __DIR__ . '/../config/module.config.php';
