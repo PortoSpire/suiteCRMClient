@@ -59,20 +59,18 @@ use \PortoSpire\SuiteCRMClient\Model\Filter,
  * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.0
  */
-class SuiteCrm
-{
+class SuiteCrm {
 
     const _access_url = 'access_token',
-        _module_url = 'V8/module',
-        _rest_url = '/service/v4_1/rest.php',
-        _web_to_person_uri = '/index.php?entryPoint=WebToPersonCapture',
-        _v8_modes = ['GET' => 'get', 'POST' => 'post', 'PUT' => 'put', 'PATCH' => 'patch', 'DELETE' => 'delete'];
+            _module_url = 'V8/module',
+            _rest_url = '/service/v4_1/rest.php',
+            _web_to_person_uri = '/index.php?entryPoint=WebToPersonCapture',
+            _v8_modes = ['GET' => 'get', 'POST' => 'post', 'PUT' => 'put', 'PATCH' => 'patch', 'DELETE' => 'delete'];
 
     private $logger, $server_domain, $client_id, $client_secret, $access_token, $token_expires,
-        $guzzle, $user, $password, $sid;
+            $guzzle, $user, $password, $sid;
 
-    public function __construct(LoggerInterface $logger, array $config = [])
-    {
+    public function __construct(LoggerInterface $logger, array $config = []) {
         $this->logger = $logger;
         if (isset($config['client_id'])) {
             $this->client_id = $config['client_id'];
@@ -89,16 +87,15 @@ class SuiteCrm
         if (isset($config['password'])) {
             $this->password = $config['password'];
         }
-        $this->guzzle = new Client(['headers' => ['Content-type: application/vnd.api+json',
-                'Accept: */*']]);
+        $this->guzzle = new Client(['headers' => ['Content-type' => 'application/vnd.api+json',
+                'Accept' => '*/*']]);
     }
 
     /*
      * applies to v8 bearer tokens
      */
 
-    public function getCurrentAccessToken()
-    {
+    public function getCurrentAccessToken() {
         return ['token' => $this->access_token, 'expires' => $this->token_expires];
     }
 
@@ -106,8 +103,7 @@ class SuiteCrm
      * only used for v4_rest calls, initiates active session
      */
 
-    public function login(): string
-    {
+    public function login(): string {
         $login_params = array(
             'user_name' => $this->rest_user,
             'password' => $this->rest_pass,
@@ -129,16 +125,14 @@ class SuiteCrm
      * only used for v4_rest calls, clears active session
      */
 
-    public function logout()
-    {
+    public function logout() {
         $this->callRestApi('logout', ['session' => $this->sid]);
         $this->sid = null;
     }
 
     public function submitWebToPerson(WebToPerson $person,
-        string $assignedUserId,
-        string $campaignID)
-    {
+            string $assignedUserId,
+            string $campaignID) {
         $vars = $person->extractNonEmpty();
         $vars['moduleDir'] = $person::MODULE_DIR;
         $vars['campaign_id'] = $campaignID;
@@ -148,7 +142,7 @@ class SuiteCrm
         try {
             $this->logger->debug($vars);
             $request = $this->guzzle->post('https://' . $this->server_domain . $this::_web_to_person_uri,
-                ['form_params' => $vars,]);
+                    ['form_params' => $vars,]);
             if ($request->getStatusCode() == 200) {
                 return true;
             } else {
@@ -165,19 +159,17 @@ class SuiteCrm
     }
 
     public function submitWebToContact(array $values, string $campaignID,
-        string $lead_source = 'Other',
-        string $assigned_user_id = '1'): bool
-    {
+            string $lead_source = 'Other',
+            string $assigned_user_id = '1'): bool {
         $webToContact = new WebToContact();
         $webToContact->exchangeArray($values);
         return $this->submitWebToPerson($webToContact, $assigned_user_id, $campaignID);
     }
 
     public function submitWebToLead(array $values, string $campaignID,
-        string $lead_source = 'Other',
-        string $lead_source_description = 'PortoSpire: WebToLead',
-        string $assigned_user_id = '1'): bool
-    {
+            string $lead_source = 'Other',
+            string $lead_source_description = 'PortoSpire: WebToLead',
+            string $assigned_user_id = '1'): bool {
         $webToLead = new WebToLead();
         $webToLead->exchangeArray($values);
         $webToLead->lead_source = $lead_source;
@@ -192,8 +184,7 @@ class SuiteCrm
      *
      * @return bool False on failure
      */
-    private function is_guid(string $guid): bool
-    {
+    private function is_guid(string $guid): bool {
         if (strlen($guid) != 36) {
             return false;
         }
@@ -209,8 +200,7 @@ class SuiteCrm
      * @return string containing a GUID in the format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
      *
      */
-    public function create_guid(): string
-    {
+    public function create_guid(): string {
         $microTime = microtime();
         list($a_dec, $a_sec) = explode(' ', $microTime);
         $dec_hex = dechex($a_dec * 1000000);
@@ -232,8 +222,7 @@ class SuiteCrm
         return $guid;
     }
 
-    private function create_guid_section(string $characters): string
-    {
+    private function create_guid_section(string $characters): string {
         $return = '';
         for ($i = 0; $i < $characters; ++$i) {
             $return .= dechex(mt_rand(0, 15));
@@ -241,8 +230,7 @@ class SuiteCrm
         return $return;
     }
 
-    private function ensure_length(string &$string, int $length): void
-    {
+    private function ensure_length(string &$string, int $length): void {
         $strlen = strlen($string);
         if ($strlen < $length) {
             $string = str_pad($string, $length, '0');
@@ -251,51 +239,43 @@ class SuiteCrm
         }
     }
 
-    public function createRelationship(string $module, string $id, string $relationship_type)
-    {
+    public function createRelationship(string $module, string $id, string $relationship_type) {
         // TODO: implement
         throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
-    public function getRelationship(string $module, string $id, string $relationship_id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = [])
-    {
+    public function getRelationship(string $module, string $id, string $relationship_id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
         // TODO: implement
         throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
-    public function deleteRelationship()
-    {
+    public function deleteRelationship() {
         // TODO: implement
         throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
-    public function update(string $type, string $id, array $attributes)
-    {
+    public function update(string $type, string $id, array $attributes) {
         // TODO: implement
         throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
-    public function create(string $type, array $attributes, string $id = null)
-    {
+    public function create(string $type, array $attributes, string $id = null) {
         // generate id if null (should we check if the passed id already exists?)
         // TODO: implement
         throw new \Exception('This function has not been implemented yet.');
     }
 
-    public function delete(string $module, string $id)
-    {
+    public function delete(string $module, string $id) {
         // TODO: implement
         throw new \Exception('This function has not been implemented yet.');
     }
 
-    public function get(string $module, array $fields = [])
-    {
+    public function get(string $module, array $fields = []) {
         // TODO: implement
         throw new \Exception('This function has not been implemented yet.');
     }
 
-    private function checkMode($mode)
-    {
+    private function checkMode($mode) {
 
         if ($key = array_search($mode, $this::_v8_modes)) {
             return $key;
@@ -305,25 +285,23 @@ class SuiteCrm
         }
         return 'GET'; // default to GET
     }
-    
-    public function convertJsonToGenerics(array $decoded_json)
-    {
+
+    public function convertJsonToGenerics(array $decoded_json) {
         $res = [];
-        foreach($decoded_json['data'] as $obj){
+        foreach ($decoded_json['data'] as $obj) {
             $newObj = new Generic();
             $res[] = $newObj->exchangeArray($obj);
         }
         return $res;
     }
 
-    public function callV8Api(string $uri, string $http_mode, string $body = null)
-    {
+    public function callV8Api(string $uri, string $http_mode, string $body = null) {
         $mode = $this->checkMode($http_mode);
         $access_token = $this->getAccessToken();
         try {
             $this->logger->debug('Requesting v8 api uri: ' . $uri);
             $request = new Request($mode, "https://{$this->server_domain}/Api/{$uri}",
-                [
+                    [
                     "Authorization" => "Bearer {$access_token}",
                     "Content-Type" => "application/vnd.api+json",
                     "Cache-Control" => "no-cache",
@@ -341,32 +319,29 @@ class SuiteCrm
                 return false;
             }
         } catch (RequestException $e) {
-            $this->logger->notice(Psr7\str($e->getRequest()));
+            $this->logger->notice(Psr7\Message::toString($e->getRequest()));
             if ($e->hasResponse()) {
-                $this->logger->error(Psr7\str($e->getResponse()));
+                $this->logger->error(Psr7\Message::toString($e->getResponse()));
             }
         }
     }
 
-    public function getCampaigns(array $fields = [], array $page = ['size' => 20, 'number' => 1], string $sort = 'name', $filter = null)
-    {
+    public function getCampaigns(array $fields = [], array $page = ['size' => 20, 'number' => 1], string $sort = 'name', $filter = null) {
         if ($filter instanceof Filter) {
             return $this->getList('Campaigns', $fields, $page, $sort, $filter->toString());
         }
         return $this->getList('Campaigns', $fields, $page, $sort);
     }
-    
-    public function getContacts(array $fields= [], array $page=['size'=>20,'number'=>1], string $sort = 'name', $filter = null)
-    {
-        if ($filter instanceof Filter){
-            return $this->getList('Contacts',$fields, $page, $sort,$filter->toString());
+
+    public function getContacts(array $fields = [], array $page = ['size' => 20, 'number' => 1], string $sort = 'name', $filter = null) {
+        if ($filter instanceof Filter) {
+            return $this->getList('Contacts', $fields, $page, $sort, $filter->toString());
         }
-        return $this->getList('Contacts', $fields,$page,$sort);
+        return $this->getList('Contacts', $fields, $page, $sort);
     }
 
     public function getAccounts(array $fields = [], string $account_type = 'Customer', array $page = ['size' => 20, 'number' => 1],
-        string $sort = 'name', $filter = null)
-    {
+            string $sort = 'name', $filter = null) {
         $filterAccountType = new \PortoSpire\SuiteCRMClient\Model\Filter(['account_type' => $account_type]);
         if (is_array($filter)) {
             $filter[] = $filterAccountType->toString();
@@ -379,14 +354,12 @@ class SuiteCrm
     }
 
     public function getList(string $module, array $fields = [], array $page = ['size' => 20, 'number' => 1], string $sort = null,
-        $filter = [])
-    {
+            $filter = []) {
         $uri = $this->buildUri($module, $fields, $page, $sort, $filter);
         return $this->callV8Api($uri, 'GET');
     }
 
-    private function buildFilterUri($filter, $separator)
-    {
+    private function buildFilterUri($filter, $separator) {
         $string = '';
         if ($filter instanceof Filter) {
             $string .= $separator . $filter->toString();
@@ -405,8 +378,7 @@ class SuiteCrm
         return $string;
     }
 
-    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [])
-    {
+    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = []) {
         $string = $this::_module_url . '/' . $entrypoint . '?';
         $separator = '';
 
@@ -449,8 +421,7 @@ class SuiteCrm
         return $string;
     }
 
-    public function callRestApi(string $callname, array $arguments)
-    {
+    public function callRestApi(string $callname, array $arguments) {
         try {
             $response = $this->guzzle->post('https://' . $this->server_domain . '/' . $this::_rest_url, ['method' => $callname,
                 'input_type' => 'JSON', 'response_type' => 'JSON',
@@ -469,20 +440,23 @@ class SuiteCrm
         return false;
     }
 
-    private function getAccessToken(): string
-    {
+    private function getAccessToken(): string {
         if (isset($this->access_token) && isset($this->token_expires) && time() < $this->token_expires) {
             return $this->access_token;
         }
         try {
-            $response = $this->guzzle->request('POST', 'https://' . $this->server_domain . '/Api/' . $this::_access_url, ['multipart' =>
+            $response = $this->guzzle->request('POST', 'https://' . $this->server_domain . '/Api/' . $this::_access_url, [
+                'multipart' =>
                 [
                     ['name' => 'grant_type', 'contents' => 'client_credentials'],
                     ['name' => 'client_id', 'contents' => $this->client_id],
                     ['name' => 'client_secret', 'contents' => $this->client_secret,
-                        'headers' => ['Content-type: application/vnd.api+json',
-                            'Accept: application/vnd.api+json']]
+                        'headers' => [
+                    'Content-Type' => 'application/vnd.api+json',
+                    'Accept' => 'application/vnd.api+json'
+                ],],
                 ],
+                
             ]);
             if ($response->getStatusCode() === 200) {
                 $out = json_decode($response->getBody(), true);
@@ -494,47 +468,41 @@ class SuiteCrm
                 $this->logger->error('SuiteCRM: unable to get access token. ' . $response->getBody());
             }
         } catch (RequestException $e) {
-            $this->logger->error(Psr7\str($e->getRequest()));
+            $this->logger->error(Psr7\Message::toString($e->getRequest()));
             if ($e->hasResponse()) {
-                $this->logger->error(Psr7\str($e->getResponse()));
+                $this->logger->error(Psr7\Message::toString($e->getResponse()));
             } else {
                 $this->logger->error($e->getMessage());
             }
         } catch (BadResponseException $e) {
-            $this->logger->error(Psr7\str($e->getRequest()));
+            $this->logger->error(Psr7\Message::toString($e->getRequest()));
             if ($e->hasResponse()) {
-                $this->logger->error(Psr7\str($e->getResponse()));
+                $this->logger->error(Psr7\Message::toString($e->getResponse()));
             }
         } catch (\Exception $e) {
             $this->logger->error('SuiteCRM: unable to get access token. ' . $e->getMessage());
         }
-        
+
         throw new \Exception('SuiteCRM: unable to fetch access token. Check the logs for details.');
     }
 
-    public function setClientId(string $client_id)
-    {
+    public function setClientId(string $client_id) {
         $this->client_id = $client_id;
     }
 
-    public function setClientSecret(string $client_secret)
-    {
+    public function setClientSecret(string $client_secret) {
         $this->client_secret = $client_secret;
     }
 
-    public function setUser(string $user)
-    {
+    public function setUser(string $user) {
         $this->user = $user;
     }
 
-    public function setPassword(string $password)
-    {
+    public function setPassword(string $password) {
         $this->password = $password;
     }
 
-    public function setServerDomain(string $domain)
-    {
+    public function setServerDomain(string $domain) {
         $this->server_domain = $domain;
     }
-
 }
