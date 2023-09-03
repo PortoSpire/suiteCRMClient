@@ -28,7 +28,7 @@
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2022 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.0.6
+ * @version   Release: 0.1.1
  * @link      https://portospire.github.io/ 
  */
 namespace Portospire\SuiteCRMClient;
@@ -43,14 +43,14 @@ namespace Portospire\SuiteCRMClient;
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2022 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.0.6
+ * @version   Release: 0.1.1
  * @link      https://portospire.github.com/
  * @since     Class available since Release 0.0.1
  */
 class Module
 {
 
-    const VERSION = "0.0.6";
+    const VERSION = "0.1.3.1";
  public function getConfig()
     {
         return include __DIR__ . '/../config/module.config.php';
