@@ -11,7 +11,7 @@ A free (LGPL3) client library for use with SuiteCRM to abstract various API usag
 
 ***
 
- ## Table of Contents ##
+## Table of Contents ##
   **[1. Introduction](#introduction)**  
   **[2. Setup](#setup)**  
   **[3. Usage](#usage)**  
