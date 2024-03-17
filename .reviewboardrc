@@ -1,0 +1,7 @@
+REVIEWBOARD_URL = 'https://codereview.portospire.net/'
+REPOSITORY = 'psframework'
+BRANCH = 'internal'
+LAND_DEST_BRANCH = 'internal'
+LAND_PUSH = True
+PUBLISH = True
+
