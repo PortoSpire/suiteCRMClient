@@ -1,5 +1,5 @@
 REVIEWBOARD_URL = 'https://codereview.portospire.net/'
-REPOSITORY = 'psframework'
+REPOSITORY = 'SuiteCRMClient'
 BRANCH = 'internal'
 LAND_DEST_BRANCH = 'internal'
 LAND_PUSH = True
