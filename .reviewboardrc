@@ -4,4 +4,4 @@ BRANCH = 'internal'
 LAND_DEST_BRANCH = 'internal'
 LAND_PUSH = True
 PUBLISH = True
-
+MARKDOWN = True
