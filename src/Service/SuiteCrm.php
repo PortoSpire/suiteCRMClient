@@ -244,9 +244,9 @@ class SuiteCrm {
         throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
-    public function getRelationship(string $module, string $id, string $relationship_id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
-        // TODO: implement
-        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+    public function getRelationship(string $module, string $id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
+        $uri = $this->buildUri($module, $fields, $page, $sort, $filter, $id, $relationship_type);
+        return $this->callV8Api($uri, 'GET');
     }
 
     public function deleteRelationship() {
@@ -302,10 +302,10 @@ class SuiteCrm {
             $this->logger->debug('Requesting v8 api uri: ' . $uri);
             $request = new Request($mode, "https://{$this->server_domain}/Api/{$uri}",
                     [
-                    "Authorization" => "Bearer {$access_token}",
-                    "Content-Type" => "application/vnd.api+json",
-                    "Cache-Control" => "no-cache",
-                ]
+                "Authorization" => "Bearer {$access_token}",
+                "Content-Type" => "application/vnd.api+json",
+                "Cache-Control" => "no-cache",
+                    ]
             );
 
             if (!is_null($body)) {
@@ -378,8 +378,12 @@ class SuiteCrm {
         return $string;
     }
 
-    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = []) {
-        $string = $this::_module_url . '/' . $entrypoint . '?';
+    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [], $id = null, $relationpoint = null) {
+        $string = $this::_module_url . '/' . $entrypoint;
+        if (!is_null($relationpoint) && !is_null($id)) {
+            $string = $string . '/'. $id.'/relationships/'.$relationpoint;
+        }
+        $string = $string . '?';
         $separator = '';
 
         // process fields
@@ -452,11 +456,10 @@ class SuiteCrm {
                     ['name' => 'client_id', 'contents' => $this->client_id],
                     ['name' => 'client_secret', 'contents' => $this->client_secret,
                         'headers' => [
-                    'Content-Type' => 'application/vnd.api+json',
-                    'Accept' => 'application/vnd.api+json'
-                ],],
+                            'Content-Type' => 'application/vnd.api+json',
+                            'Accept' => 'application/vnd.api+json'
+                        ],],
                 ],
-                
             ]);
             if ($response->getStatusCode() === 200) {
                 $out = json_decode($response->getBody(), true);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Description of Module
  * 
@@ -31,7 +32,11 @@
  * @version   Release: 0.1.1
  * @link      https://portospire.github.io/ 
  */
+
 namespace Portospire\SuiteCRMClient;
+
+use PortoSpire\SuiteCRMClient\ConfigProvider;
+use Laminas\Stdlib\ArrayUtils;
 
 /**
  * Description of Module
@@ -47,12 +52,20 @@ namespace Portospire\SuiteCRMClient;
  * @link      https://portospire.github.com/
  * @since     Class available since Release 0.0.1
  */
-class Module
-{
+class Module {
 
-    const VERSION = "0.1.3.3";
- public function getConfig()
-    {
-        return include __DIR__ . '/../config/module.config.php';
+    const VERSION = "0.1.3.4";
+
+    public function getConfig() {
+        $configProvider = new ConfigProvider();
+
+        $temp = [
+            'service_manager' => $configProvider->getDependencies(),
+        ];
+        $config = ArrayUtils::merge(include __DIR__ . '/../config/module.config.php', $temp);
+        if (class_exists(\Laminas\ApiTools\Module::class)) {
+            unset($config['router']);
+        }
+        return $config;
     }
 }
