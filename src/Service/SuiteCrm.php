@@ -263,7 +263,7 @@ class SuiteCrm {
             'id' => $id,
             'attributes' => $attributes
         ];
-        return $this->callV8Api($uri, 'PATCH', json_encode($data));
+        return $this->callV8Api($uri, 'PATCH', json_encode(['data' => $data]));
     }
 
     public function create(string $type, array $attributes, string $id = null) {
@@ -277,7 +277,7 @@ class SuiteCrm {
             'id' => $id,
             'attributes' => $attributes
         ];
-        return $this->callV8Api($uri, 'POST', json_encode($data));
+        return $this->callV8Api($uri, 'POST', json_encode(['data' => $data]));
     }
 
     public function delete(string $module, string $id) {
@@ -315,19 +315,17 @@ class SuiteCrm {
         $access_token = $this->getAccessToken();
         try {
             $this->logger->debug('Requesting v8 api uri: ' . $uri);
+            $body = !is_null($body) ? $body : '';
             $request = new Request($mode, "https://{$this->server_domain}/Api/{$uri}",
                     [
                 "Authorization" => "Bearer {$access_token}",
                 "Content-Type" => "application/vnd.api+json",
                 "Cache-Control" => "no-cache",
-                    ]
+                    ], $body
             );
 
-            if (!is_null($body)) {
-                $request->setBody($body);
-            }
             $response = $this->guzzle->send($request);
-            if ($response->getStatusCode() == 200) {
+            if ($response->getStatusCode() > 199 && $response->getStatusCode() < 300) {
                 return json_decode($response->getBody(), true);
             } else {
                 $this->logger->error('SuiteCRM: unable to make call to destination service');
