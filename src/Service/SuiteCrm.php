@@ -263,7 +263,7 @@ class SuiteCrm {
             'id' => $id,
             'attributes' => $attributes
         ];
-        return $this->callV8Api($uri, 'PATCH', $data);
+        return $this->callV8Api($uri, 'PATCH', json_encode($data));
     }
 
     public function create(string $type, array $attributes, string $id = null) {
@@ -277,7 +277,7 @@ class SuiteCrm {
             'id' => $id,
             'attributes' => $attributes
         ];
-        return $this->callV8Api($uri, 'POST', $data);
+        return $this->callV8Api($uri, 'POST', json_encode($data));
     }
 
     public function delete(string $module, string $id) {
