@@ -54,7 +54,7 @@ use Laminas\Stdlib\ArrayUtils;
  */
 class Module {
 
-    const VERSION = "0.1.3.5";
+    const VERSION = "0.1.3.6";
 
     public function getConfig() {
         $configProvider = new ConfigProvider();
