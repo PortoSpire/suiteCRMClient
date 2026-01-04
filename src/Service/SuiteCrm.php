@@ -35,17 +35,19 @@
 
 namespace PortoSpire\SuiteCRMClient\Service;
 
-use \GuzzleHttp\Client;
-use \GuzzleHttp\Exception\RequestException,
-    \GuzzleHttp\Exception\BadResponseException;
-use \GuzzleHttp\Psr7;
-use \GuzzleHttp\Psr7\Request;
-use \Psr\Log\LoggerInterface;
-use \PortoSpire\SuiteCRMClient\Model\Filter,
-    \PortoSpire\SuiteCRMClient\Model\WebToPerson,
-    \PortoSpire\SuiteCRMClient\Model\WebToLead,
-    \PortoSpire\SuiteCRMClient\Model\WebToContact,
-    \PortoSpire\SuiteCRMClient\Model\Generic;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Request;
+use PortoSpire\SuiteCRMClient\Model\Filter;
+use PortoSpire\SuiteCRMClient\Model\Generic;
+use PortoSpire\SuiteCRMClient\Model\WebToContact;
+use PortoSpire\SuiteCRMClient\Model\WebToLead;
+use PortoSpire\SuiteCRMClient\Model\WebToPerson;
+use Psr\Log\LoggerInterface;
+use Swoole\MySQL\Exception as Exception2;
 
 /**
  * Description of SuiteCrm
@@ -241,7 +243,7 @@ class SuiteCrm {
 
     public function createRelationship(string $module, string $id, string $relationship_type) {
         // TODO: implement
-        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+        throw new Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
     public function getRelationship(string $module, string $id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
@@ -251,28 +253,41 @@ class SuiteCrm {
 
     public function deleteRelationship() {
         // TODO: implement
-        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+        throw new Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
     }
 
     public function update(string $type, string $id, array $attributes) {
-        // TODO: implement
-        throw new \Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+        $uri = $this::_module_url;
+        $data = [
+            'type' => $type,
+            'id' => $id,
+            'attributes' => $attributes
+        ];
+        return $this->callV8Api($uri, 'PATCH', $data);
     }
 
     public function create(string $type, array $attributes, string $id = null) {
         // generate id if null (should we check if the passed id already exists?)
-        // TODO: implement
-        throw new \Exception('This function has not been implemented yet.');
+        if (is_null($id)) {
+            $id = $this->create_guid();
+        }
+        $uri = $this::_module_url;
+        $data = [
+            'type' => $type,
+            'id' => $id,
+            'attributes' => $attributes
+        ];
+        return $this->callV8Api($uri, 'POST', $data);
     }
 
     public function delete(string $module, string $id) {
-        // TODO: implement
-        throw new \Exception('This function has not been implemented yet.');
+        $uri = $this->buildUri($module, [], [], null, [], $id);
+        return $this->callV8Api($uri, 'DEL');
     }
 
     public function get(string $module, array $fields = []) {
-        // TODO: implement
-        throw new \Exception('This function has not been implemented yet.');
+        $uri = $this->buildUri($module, $fields);
+        return $this->callV8Api($uri, 'GET');
     }
 
     private function checkMode($mode) {
@@ -342,7 +357,7 @@ class SuiteCrm {
 
     public function getAccounts(array $fields = [], string $account_type = 'Customer', array $page = ['size' => 20, 'number' => 1],
             string $sort = 'name', $filter = null) {
-        $filterAccountType = new \PortoSpire\SuiteCRMClient\Model\Filter(['account_type' => $account_type]);
+        $filterAccountType = new Filter(['account_type' => $account_type]);
         if (is_array($filter)) {
             $filter[] = $filterAccountType->toString();
         } elseif ($filter instanceof Filter) {
@@ -381,7 +396,7 @@ class SuiteCrm {
     private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [], $id = null, $relationpoint = null) {
         $string = $this::_module_url . '/' . $entrypoint;
         if (!is_null($relationpoint) && !is_null($id)) {
-            $string = $string . '/'. $id.'/relationships/'.$relationpoint;
+            $string = $string . '/' . $id . '/relationships/' . $relationpoint;
         }
         $string = $string . '?';
         $separator = '';
@@ -438,7 +453,7 @@ class SuiteCrm {
             if ($e->hasResponse()) {
                 $this->logger->error(Psr7\str($e->getResponse()));
             }
-        } catch (Exception $e) {
+        } catch (Exception2 $e) {
             $this->logger->error('SuiteCRM: failed calling rest api. ' . $e->getMessage());
         }
         return false;
@@ -482,11 +497,11 @@ class SuiteCrm {
             if ($e->hasResponse()) {
                 $this->logger->error(Psr7\Message::toString($e->getResponse()));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('SuiteCRM: unable to get access token. ' . $e->getMessage());
         }
 
-        throw new \Exception('SuiteCRM: unable to fetch access token. Check the logs for details.');
+        throw new Exception('SuiteCRM: unable to fetch access token. Check the logs for details.');
     }
 
     public function setClientId(string $client_id) {
