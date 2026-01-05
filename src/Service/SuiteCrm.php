@@ -3,10 +3,10 @@
 /**
  * Description of SuiteCrm
  * 
- * PHP version 7
+ * PHP version 8
  * 
  * * * License * * * 
- * Copyright (C) 2022 PortoSpire, LLC.
+ * Copyright (C) 2026 PortoSpire, LLC.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,9 @@
  * @category  Service
  * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2022 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.3.2
+ * @version   Release: 0.1.4.1
  * @link      https://portospire.github.io/
  */
 
@@ -55,11 +55,11 @@ use Swoole\MySQL\Exception as Exception2;
  * @category  Service
  * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2022 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.0.6
+ * @version   Release: 0.1.4.1
  * @link      https://portospire.github.io/
- * @since     Class available since Release 0.0.0
+ * @since     Class available since Release 0.0.1
  */
 class SuiteCrm {
 
@@ -241,9 +241,13 @@ class SuiteCrm {
         }
     }
 
-    public function createRelationship(string $module, string $id, string $relationship_type) {
-        // TODO: implement
-        throw new Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+    public function createRelationship(string $module, string $id, string $relationship_type, string $relationID) {
+        $uri = $this->buildUri($module, [], [], null, [], $id, $relationship_type);
+        $data = [
+            'type' => $relationship_type,
+            'id' => $relationID
+        ];
+        return $this->callV8Api($uri, 'POST', ['data' => $data]);
     }
 
     public function getRelationship(string $module, string $id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
@@ -251,9 +255,9 @@ class SuiteCrm {
         return $this->callV8Api($uri, 'GET');
     }
 
-    public function deleteRelationship() {
-        // TODO: implement
-        throw new Exception('Relationship management has not been fully implemented through the API at the time this library was written.');
+    public function deleteRelationship(string $module, string $id, string $relationship_type, string $relationID) {
+        $uri = $this->buildUri($module, [], [], null, [], $id, $relationship_type);
+        return $this->callV8Api($uri . '/' . $relationID, 'DEL');
     }
 
     public function update(string $type, string $id, array $attributes) {
