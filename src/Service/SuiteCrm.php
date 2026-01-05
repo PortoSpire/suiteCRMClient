@@ -267,16 +267,14 @@ class SuiteCrm {
     }
 
     public function create(string $type, array $attributes, string $id = null) {
-        // generate id if null (should we check if the passed id already exists?)
-        if (is_null($id)) {
-            $id = $this->create_guid();
-        }
         $uri = $this::_module_url;
         $data = [
             'type' => $type,
-            'id' => $id,
             'attributes' => $attributes
         ];
+        if (!is_null($id)) {
+            $data['id'] = $id;
+        }
         return $this->callV8Api($uri, 'POST', json_encode(['data' => $data]));
     }
 
