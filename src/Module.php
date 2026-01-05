@@ -3,10 +3,10 @@
 /**
  * Description of Module
  * 
- * PHP version 7
+ * PHP version 8
  * 
  * * * License * * * 
- * Copyright (C) 2022 PortoSpire, LLC.
+ * Copyright (C) 2026 PortoSpire, LLC.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,9 @@
  * @category  Module
  * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2022 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.1
+ * @version   Release: 0.1.4.1
  * @link      https://portospire.github.io/ 
  */
 
@@ -46,15 +46,15 @@ use Laminas\Stdlib\ArrayUtils;
  * @category  Module
  * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2022 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.1
+ * @version   Release: 0.1.4.1
  * @link      https://portospire.github.com/
  * @since     Class available since Release 0.0.1
  */
 class Module {
 
-    const VERSION = "0.1.4.0";
+    const VERSION = "0.1.4.1";
 
     public function getConfig() {
         $configProvider = new ConfigProvider();

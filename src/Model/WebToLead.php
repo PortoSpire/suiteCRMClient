@@ -4,7 +4,7 @@
  * Description of WebToLead
  * 
  * * * License * * * 
- * Copyright (C) 2022 PortoSpire, LLC.
+ * Copyright (C) 2026 PortoSpire, LLC.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,9 +25,9 @@
  * @category  CategoryName
  * @package   PackageName
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2019 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   GIT: 0.1.3.2
+ * @version   GIT: 0.1.4.1
  * @link      https://portospire.com 
  */
 
@@ -41,11 +41,11 @@ use \PortoSpire\SuiteCRMClient\Model\WebToPerson;
  * @category  CategoryName
  * @package   PackageName
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2019 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: @package_version@
+ * @version   Release: 0.1.4.1
  * @link      https://coderepo.portospire.com/#git_repo_name
- * @since     Class available since Release 0.0.0
+ * @since     Class available since Release 0.0.1
  */
 class WebToLead extends WebToPerson
 {
