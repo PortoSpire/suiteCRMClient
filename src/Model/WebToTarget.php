@@ -3,10 +3,10 @@
 /**
  * Description of WebToTarget
  * 
- * PHP version 7
+ * PHP version 8
  * 
  * * * License * * * 
- * Copyright (C) 2022 PortoSpire, LLC.
+ * Copyright (C) 2026 PortoSpire, LLC.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,9 @@
  * @category  Model
  * @package   SuiteCRMClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2022 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.3.2
+ * @version   Release: 0.1.4.1
  * @link      https://portospire.github.io/ 
  */
 
@@ -41,11 +41,11 @@ namespace PortoSpire\SuiteCRMClient\Model;
  * @category  Model
  * @package   SuiteCRmClient
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
- * @copyright 2022 PORTOSPIRE
+ * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.0.6
+ * @version   Release: 0.1.4.1
  * @link      https://portospire.github.io/
- * @since     Class available since Release 0.0.0
+ * @since     Class available since Release 0.0.1
  */
 class WebToTarget extends WebToPerson
 {
