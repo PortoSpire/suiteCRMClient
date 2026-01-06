@@ -287,8 +287,11 @@ class SuiteCrm {
         return $this->callV8Api($uri, 'DEL');
     }
 
-    public function get(string $module, array $fields = []) {
+    public function get(string $module, array $fields = [], string $id = null) {
         $uri = $this->buildUri($module, $fields);
+        if (!is_null($id)) {
+            $uri = $uri . '/' . $id;
+        }
         return $this->callV8Api($uri, 'GET');
     }
 
