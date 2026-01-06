@@ -29,7 +29,7 @@
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.6.0
+ * @version   Release: 0.1.6.1
  * @link      https://portospire.github.io/
  */
 
@@ -57,7 +57,7 @@ use Swoole\MySQL\Exception as Exception2;
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.6.0
+ * @version   Release: 0.1.6.1
  * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.1
  */
@@ -395,11 +395,10 @@ class SuiteCrm {
 
     private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [], $id = null, $relationpoint = null, $linkname = null) {
         $string = $this::_module_url . '/' . $entrypoint;
-        if (!is_null($relationpoint) && !is_null($id)) {
+        if (!is_null($linkname) && !is_null($id)) {
+            $string = $string . '/' . $id . '/relationships/' . $linkname;
+        } elseif (!is_null($relationpoint) && !is_null($id)) {
             $string = $string . '/' . $id . '/relationships/' . $relationpoint;
-            if (!is_null($linkname)) {
-                $string = $string . '/' . $linkname;
-            }
         } elseif (!is_null($id)) {
             $string = $string . ' /' . $id;
         }
