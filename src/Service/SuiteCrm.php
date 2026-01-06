@@ -241,8 +241,8 @@ class SuiteCrm {
         }
     }
 
-    public function createRelationship(string $module, string $id, string $relationship_type, string $relationID) {
-        $uri = $this->buildUri($module, [], [], null, [], $id, $relationship_type);
+    public function createRelationship(string $module, string $id, string $relationship_type, string $relationID, string $linkname = null) {
+        $uri = $this->buildUri($module, [], [], null, [], $id, $relationship_type, $linkname);
         $data = [
             'type' => $relationship_type,
             'id' => $relationID
@@ -393,10 +393,13 @@ class SuiteCrm {
         return $string;
     }
 
-    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [], $id = null, $relationpoint = null) {
+    private function buildUri(string $entrypoint, array $fields = [], array $page = [], string $sort = null, $filter = [], $id = null, $relationpoint = null, $linkname = null) {
         $string = $this::_module_url . '/' . $entrypoint;
         if (!is_null($relationpoint) && !is_null($id)) {
             $string = $string . '/' . $id . '/relationships/' . $relationpoint;
+            if (!is_null($linkname)) {
+                $string = $string . '/' . $linkname;
+            }
         } elseif (!is_null($id)) {
             $string = $string . ' /' . $id;
         }
