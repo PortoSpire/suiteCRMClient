@@ -28,7 +28,7 @@
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.5.1
+ * @version   Release: 0.1.6.0
  * @link      https://portospire.github.io/ 
  */
 
