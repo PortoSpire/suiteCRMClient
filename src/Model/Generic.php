@@ -29,7 +29,7 @@
  * @author    PortoSpire, LLC
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.5.0
+ * @version   Release: 0.1.5.1
  * @link      https://portospire.github.io/ 
  */
 
@@ -43,7 +43,7 @@ namespace PortoSpire\SuiteCRMClient\Model;
  * @author    PortoSpire, LLC
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.5.0
+ * @version   Release: 0.1.5.1
  * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.1
  */

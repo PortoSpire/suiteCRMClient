@@ -28,7 +28,7 @@
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.5.0
+ * @version   Release: 0.1.5.1
  * @link      https://portospire.github.io/ 
  */
 namespace PortoSpire\SuiteCRMClient;
@@ -43,14 +43,14 @@ namespace PortoSpire\SuiteCRMClient;
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.5.0
+ * @version   Release: 0.1.5.1
  * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.1
  */
 class ConfigProvider
 {
 
-    const VERSION = "0.1.5.0";
+    const VERSION = "0.1.5.1";
     
     /**
      * Returns the configuration array

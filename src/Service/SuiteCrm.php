@@ -29,7 +29,7 @@
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.4.1
+ * @version   Release: 0.1.5.1
  * @link      https://portospire.github.io/
  */
 
@@ -57,7 +57,7 @@ use Swoole\MySQL\Exception as Exception2;
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.5.0
+ * @version   Release: 0.1.5.1
  * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.1
  */
@@ -287,8 +287,8 @@ class SuiteCrm {
         return $this->callV8Api($uri, 'DEL');
     }
 
-    public function get(string $module, array $fields = []) {
-        $uri = $this->buildUri($module, $fields);
+    public function get(string $module, array $fields = [], string $id = null) {
+        $uri = $this->buildUri($module, $fields, [], null, [], $id);
         return $this->callV8Api($uri, 'GET');
     }
 
@@ -397,6 +397,8 @@ class SuiteCrm {
         $string = $this::_module_url . '/' . $entrypoint;
         if (!is_null($relationpoint) && !is_null($id)) {
             $string = $string . '/' . $id . '/relationships/' . $relationpoint;
+        } elseif (!is_null($id)) {
+            $string = $string . ' /' . $id;
         }
         $string = $string . '?';
         $separator = '';
