@@ -29,7 +29,7 @@
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.4.1
+ * @version   Release: 0.1.5.0
  * @link      https://portospire.github.io/ 
  */
 
@@ -48,13 +48,13 @@ use Laminas\Stdlib\ArrayUtils;
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.4.1
+ * @version   Release: 0.1.5.0
  * @link      https://portospire.github.com/
  * @since     Class available since Release 0.0.1
  */
 class Module {
 
-    const VERSION = "0.1.4.1";
+    const VERSION = "0.1.5.0";
 
     public function getConfig() {
         $configProvider = new ConfigProvider();

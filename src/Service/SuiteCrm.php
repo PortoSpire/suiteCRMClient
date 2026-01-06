@@ -57,7 +57,7 @@ use Swoole\MySQL\Exception as Exception2;
  * @author    Andrew Wallace <andrew.wallace@portospire.com>
  * @copyright 2026 PORTOSPIRE
  * @license   LGPL 3
- * @version   Release: 0.1.4.1
+ * @version   Release: 0.1.5.0
  * @link      https://portospire.github.io/
  * @since     Class available since Release 0.0.1
  */
@@ -247,7 +247,7 @@ class SuiteCrm {
             'type' => $relationship_type,
             'id' => $relationID
         ];
-        return $this->callV8Api($uri, 'POST', ['data' => $data]);
+        return $this->callV8Api($uri, 'POST', json_encode(['data' => $data]));
     }
 
     public function getRelationship(string $module, string $id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
