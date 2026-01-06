@@ -288,10 +288,7 @@ class SuiteCrm {
     }
 
     public function get(string $module, array $fields = [], string $id = null) {
-        $uri = $this->buildUri($module, $fields);
-        if (!is_null($id)) {
-            $uri = $uri . '/' . $id;
-        }
+        $uri = $this->buildUri($module, $fields, [], null, [], $id);
         return $this->callV8Api($uri, 'GET');
     }
 
@@ -400,6 +397,8 @@ class SuiteCrm {
         $string = $this::_module_url . '/' . $entrypoint;
         if (!is_null($relationpoint) && !is_null($id)) {
             $string = $string . '/' . $id . '/relationships/' . $relationpoint;
+        } elseif (!is_null($id)) {
+            $string = $string . ' /' . $id;
         }
         $string = $string . '?';
         $separator = '';
