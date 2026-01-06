@@ -247,7 +247,7 @@ class SuiteCrm {
             'type' => $relationship_type,
             'id' => $relationID
         ];
-        return $this->callV8Api($uri, 'POST', ['data' => $data]);
+        return $this->callV8Api($uri, 'POST', json_encode(['data' => $data]));
     }
 
     public function getRelationship(string $module, string $id, string $relationship_type, array $fields = [], array $page = [], string $sort = null, array $filter = []) {
